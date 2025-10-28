@@ -184,6 +184,8 @@ MonoBehaviour:
   MosquitoJuice: {fileID: 682267794}
   CounterJuice: {fileID: 545202816}
   CounterNumberJuice: {fileID: 1544407952}
+  MosquitoGetHitAnim: {fileID: 1399349884}
+  AnimationDuration: 0.25
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

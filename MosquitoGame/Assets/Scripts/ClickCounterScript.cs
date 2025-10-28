@@ -3,6 +3,7 @@ using TMPro;
 using System.Threading;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 using Unity.VisualScripting;
+using System.Timers;
 
 public class ClickCounterScript : MonoBehaviour
 {
@@ -31,6 +32,13 @@ public class ClickCounterScript : MonoBehaviour
     [SerializeField] public GameJuiceEffectScript CounterJuice;
     [SerializeField] public GameJuiceEffectScript CounterNumberJuice;
 
+    [Header("Animation")]
+    [SerializeField] public Animator MosquitoGetHitAnim;
+    [SerializeField] public GameObject Mosquito;
+    [SerializeField] private float AnimationDuration = 1f;
+
+    private float animTimer = 0f;
+    private bool isAnimActive = false;
 
     private float cooldownTimer = 0;
     private bool onCooldown = false;
@@ -57,28 +65,37 @@ public class ClickCounterScript : MonoBehaviour
                 Debug.Log("Cooldown expired");
             }
         }
-
+        
         if (Input.GetMouseButtonDown(0))
         {
             HandleClick("Left");
-            HandJuice01_1.TriggerJuice();
-            HandJuice02_1.TriggerJuice();
             HandJuice01_2.TriggerJuice();
-            HandJuice02_2.TriggerJuice();
             MosquitoJuice.TriggerJuice();
             CounterJuice.TriggerJuice();
             CounterNumberJuice.TriggerJuice();
+
+            //TriggerGetHit();
         }
         if (Input.GetMouseButtonDown(1))
         {
             HandleClick("Right");
-            HandJuice01_1.TriggerJuice();
-            HandJuice02_1.TriggerJuice();
-            HandJuice01_2.TriggerJuice();
             HandJuice02_2.TriggerJuice();
             MosquitoJuice.TriggerJuice();
             CounterJuice.TriggerJuice();
             CounterNumberJuice.TriggerJuice();
+            
+            //TriggerGetHit();
+            
+        }
+
+        if (isAnimActive)
+        {
+            animTimer -= Time.deltaTime;
+            if (animTimer <= 0f)
+            {
+                MosquitoGetHitAnim.SetBool("GetHit", false);
+                isAnimActive = false;
+            }
         }
 
 
@@ -96,6 +113,10 @@ public class ClickCounterScript : MonoBehaviour
 
         if (!IsMouseOverMosquito())
             return;
+
+        //Juice
+        HandJuice01_1.TriggerJuice();
+        HandJuice02_1.TriggerJuice();
 
         inactivityTimer = 0f;
 
@@ -162,6 +183,33 @@ public class ClickCounterScript : MonoBehaviour
         TextBeaterCounter.text = "Beatings: " + BeatingCounter.ToString();
     }
 
+    public void TriggerGetHitRight()
+    {
+        animTimer = AnimationDuration;
+        
+        //Mathf.Abs(Mosquito.transform.localScale);
+
+        if (!isAnimActive)
+        {
+            isAnimActive = true;
+            MosquitoGetHitAnim.SetBool("GetHit", true);
+        }
+
+    }
+
+    public void TriggerGetHitLeft()
+    {
+        animTimer = AnimationDuration;
+        Mosquito.transform.localScale = new Vector3(-1 * Mosquito.transform.localScale.x, Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
+        //Mathf.Abs()
+
+        if (!isAnimActive)
+        {
+            isAnimActive = true;
+            MosquitoGetHitAnim.SetBool("GetHit", true);
+        }
+    }
+
     private System.Collections.IEnumerator FlashObject(GameObject toHide, GameObject toShow)
     {
         SpriteRenderer hideRenderer = toHide != null ? toHide.GetComponent<SpriteRenderer>() : null;
@@ -182,4 +230,5 @@ public class ClickCounterScript : MonoBehaviour
         if (hideRenderer != null) hideRenderer.enabled = true;
         if (showRenderer != null) showRenderer.enabled = false;
     }
+    
 }
