@@ -20,11 +20,6 @@ public class ClickCounterScript : MonoBehaviour
     private float inactivityTimer = 0f;
     private string lastButton = "";
 
-    void Start()
-    {
-    
-    }
-
     void Update()
     {
         inactivityTimer += Time.deltaTime;
@@ -34,20 +29,30 @@ public class ClickCounterScript : MonoBehaviour
             lastButton = "";
         }
 
-        // Handle clicks
+        if (onCooldown)
+        {
+            cooldownTimer -= Time.deltaTime;
+            if (cooldownTimer <= 0f)
+            {
+                onCooldown = false;
+                cooldownTimer = 0f;
+                lastButton = "";
+                Debug.Log("Cooldown expired");
+            }
+        }
+
         if (Input.GetMouseButtonDown(0))
             HandleClick("Left");
-
         if (Input.GetMouseButtonDown(1))
             HandleClick("Right");
+
+        UpdateUI();
     }
 
 
     void HandleClick(string button)
     {
         inactivityTimer = 0f;
-
-        UpdateUI();
 
         if (onCooldown)
         {
@@ -56,40 +61,29 @@ public class ClickCounterScript : MonoBehaviour
                 onCooldown = false;
                 cooldownTimer = 0f;
                 BeatingCounter++;
-                Debug.Log("Recovered from cooldown early!");
+                lastButton = button;
+                Debug.Log("Recovered from cooldown early");
             }
             else
             {
                 Debug.Log("Still on cooldown");
-                return;
             }
+
+            return;
         }
-        else
+
+        if (button == lastButton && lastButton != "")
         {
-            if (button == lastButton && lastButton != "")
-            {
-                onCooldown = true;
-                cooldownTimer = CooldownTime;
-                Debug.Log("Cooldown triggered for " + CooldownTime + "s!");
-            }
+            onCooldown = true;
+            cooldownTimer = CooldownTime;
+            Debug.Log("Cooldown triggered for " + CooldownTime + "s!");
         }
 
         if (!onCooldown)
-        {
             BeatingCounter++;
-        }
 
         lastButton = button;
     }
-
-    //void RecoverFromCooldown(string button)
-    //{
-    //    BeatingCounter++;
-    //    lastButton = button;
-    //    onCooldown = false;
-    //    Debug.Log("Recovered from cooldown");
-    //    UpdateUI();
-    //}
 
     void UpdateUI()
     {
