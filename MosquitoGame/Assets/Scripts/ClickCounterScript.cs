@@ -74,7 +74,7 @@ public class ClickCounterScript : MonoBehaviour
             CounterJuice.TriggerJuice();
             CounterNumberJuice.TriggerJuice();
 
-            //TriggerGetHit();
+            TriggerGetHitLeft ();
         }
         if (Input.GetMouseButtonDown(1))
         {
@@ -83,8 +83,8 @@ public class ClickCounterScript : MonoBehaviour
             MosquitoJuice.TriggerJuice();
             CounterJuice.TriggerJuice();
             CounterNumberJuice.TriggerJuice();
-            
-            //TriggerGetHit();
+
+            TriggerGetHitRight();
             
         }
 
@@ -186,8 +186,8 @@ public class ClickCounterScript : MonoBehaviour
     public void TriggerGetHitRight()
     {
         animTimer = AnimationDuration;
-        
-        //Mathf.Abs(Mosquito.transform.localScale);
+
+        Mosquito.transform.localScale = new Vector3(Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
 
         if (!isAnimActive)
         {
@@ -200,8 +200,7 @@ public class ClickCounterScript : MonoBehaviour
     public void TriggerGetHitLeft()
     {
         animTimer = AnimationDuration;
-        Mosquito.transform.localScale = new Vector3(-1 * Mosquito.transform.localScale.x, Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
-        //Mathf.Abs()
+        Mosquito.transform.localScale = new Vector3(-Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
 
         if (!isAnimActive)
         {
