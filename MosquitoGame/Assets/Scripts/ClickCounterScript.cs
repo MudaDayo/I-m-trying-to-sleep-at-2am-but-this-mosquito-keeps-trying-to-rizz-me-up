@@ -22,6 +22,16 @@ public class ClickCounterScript : MonoBehaviour
     [SerializeField] private GameObject HandRight02;
     [SerializeField] private float HandDistance = 1;
 
+    [Header("GameJuice")]
+    [SerializeField] public GameJuiceEffectScript HandJuice01_1;
+    [SerializeField] public GameJuiceEffectScript HandJuice01_2;
+    [SerializeField] public GameJuiceEffectScript HandJuice02_1;
+    [SerializeField] public GameJuiceEffectScript HandJuice02_2;
+    [SerializeField] public GameJuiceEffectScript MosquitoJuice;
+    [SerializeField] public GameJuiceEffectScript CounterJuice;
+    [SerializeField] public GameJuiceEffectScript CounterNumberJuice;
+
+
     private float cooldownTimer = 0;
     private bool onCooldown = false;
     private float inactivityTimer = 0f;
@@ -49,9 +59,28 @@ public class ClickCounterScript : MonoBehaviour
         }
 
         if (Input.GetMouseButtonDown(0))
+        {
             HandleClick("Left");
+            HandJuice01_1.TriggerJuice();
+            HandJuice02_1.TriggerJuice();
+            HandJuice01_2.TriggerJuice();
+            HandJuice02_2.TriggerJuice();
+            MosquitoJuice.TriggerJuice();
+            CounterJuice.TriggerJuice();
+            CounterNumberJuice.TriggerJuice();
+        }
         if (Input.GetMouseButtonDown(1))
+        {
             HandleClick("Right");
+            HandJuice01_1.TriggerJuice();
+            HandJuice02_1.TriggerJuice();
+            HandJuice01_2.TriggerJuice();
+            HandJuice02_2.TriggerJuice();
+            MosquitoJuice.TriggerJuice();
+            CounterJuice.TriggerJuice();
+            CounterNumberJuice.TriggerJuice();
+        }
+
 
         UpdateFollowObjects();
         UpdateUI();
@@ -133,21 +162,24 @@ public class ClickCounterScript : MonoBehaviour
         TextBeaterCounter.text = "Beatings: " + BeatingCounter.ToString();
     }
 
-    private System.Collections.IEnumerator FlashObject(GameObject toDisable, GameObject toEnable)
+    private System.Collections.IEnumerator FlashObject(GameObject toHide, GameObject toShow)
     {
-        if (toDisable != null) toDisable.SetActive(false);
-        if (toEnable != null) toEnable.SetActive(true);
+        SpriteRenderer hideRenderer = toHide != null ? toHide.GetComponent<SpriteRenderer>() : null;
+        if (hideRenderer != null) hideRenderer.enabled = false;
+
+        SpriteRenderer showRenderer = toShow != null ? toShow.GetComponent<SpriteRenderer>() : null;
+        if (showRenderer != null) showRenderer.enabled = true;
 
         float timer = 0f;
         while (timer < UndoDelay)
         {
             timer += Time.deltaTime;
-            if (toEnable != null)
-                toEnable.transform.position = GetMouseWorldPosition();
+            if (showRenderer != null)
+                toShow.transform.position = GetMouseWorldPosition();
             yield return null;
         }
 
-        if (toDisable != null) toDisable.SetActive(true);
-        if (toEnable != null) toEnable.SetActive(false);
+        if (hideRenderer != null) hideRenderer.enabled = true;
+        if (showRenderer != null) showRenderer.enabled = false;
     }
 }
