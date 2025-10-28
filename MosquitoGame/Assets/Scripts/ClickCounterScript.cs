@@ -52,6 +52,9 @@ public class ClickCounterScript : MonoBehaviour
 
     void HandleClick(string button)
     {
+        if (!IsMouseOverMosquito())
+            return;
+
         inactivityTimer = 0f;
 
         if (onCooldown)
@@ -83,6 +86,18 @@ public class ClickCounterScript : MonoBehaviour
             BeatingCounter++;
 
         lastButton = button;
+    }
+
+    bool IsMouseOverMosquito()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
+        {
+            if (hit.collider.CompareTag("Mosquito"))
+                return true;
+        }
+        return false;
     }
 
     void UpdateUI()
