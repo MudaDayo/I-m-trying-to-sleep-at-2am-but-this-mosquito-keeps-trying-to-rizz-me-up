@@ -6,14 +6,21 @@ using Unity.VisualScripting;
 
 public class ClickCounterScript : MonoBehaviour
 {
-    [SerializeField]
-    private TextMeshProUGUI TextBeaterCounter;
-    [SerializeField]
-    private int BeatingCounter = 0;
-    [SerializeField]
-    private float CooldownTime = 0.3f;
-    [SerializeField]
-    private float ResetDelay = 1;
+    [Header("UI")]
+    [SerializeField] private TextMeshProUGUI TextBeaterCounter;
+
+    [Header("Counter & Timing")]
+    [SerializeField] private int BeatingCounter = 0;
+    [SerializeField] private float CooldownTime = 0.3f;
+    [SerializeField] private float ResetDelay = 1;
+    [SerializeField] private float UndoDelay = 0.5f;
+
+    [Header("Hands")]
+    [SerializeField] private GameObject HandLeft01;
+    [SerializeField] private GameObject HandLeft02;
+    [SerializeField] private GameObject HandRight01;
+    [SerializeField] private GameObject HandRight02;
+    [SerializeField] private float HandDistance = 1;
 
     private float cooldownTimer = 0;
     private bool onCooldown = false;
@@ -46,12 +53,18 @@ public class ClickCounterScript : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
             HandleClick("Right");
 
+        UpdateFollowObjects();
         UpdateUI();
     }
 
 
     void HandleClick(string button)
     {
+        if (button == "Left")
+            StartCoroutine(FlashObject(HandLeft01, HandLeft02));
+        else if (button == "Right")
+            StartCoroutine(FlashObject(HandRight01, HandRight02));
+
         if (!IsMouseOverMosquito())
             return;
 
@@ -88,6 +101,21 @@ public class ClickCounterScript : MonoBehaviour
         lastButton = button;
     }
 
+    void UpdateFollowObjects()
+    {
+        if (HandLeft02 != null && HandLeft02.activeSelf)
+            HandLeft02.transform.position = GetMouseWorldPosition();
+
+        if (HandRight02 != null && HandRight02.activeSelf)
+            HandRight02.transform.position = GetMouseWorldPosition();
+    }
+    Vector3 GetMouseWorldPosition()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = HandDistance;
+        return Camera.main.ScreenToWorldPoint(mousePos);
+    }
+
     bool IsMouseOverMosquito()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -103,5 +131,23 @@ public class ClickCounterScript : MonoBehaviour
     void UpdateUI()
     {
         TextBeaterCounter.text = "Beatings: " + BeatingCounter.ToString();
+    }
+
+    private System.Collections.IEnumerator FlashObject(GameObject toDisable, GameObject toEnable)
+    {
+        if (toDisable != null) toDisable.SetActive(false);
+        if (toEnable != null) toEnable.SetActive(true);
+
+        float timer = 0f;
+        while (timer < UndoDelay)
+        {
+            timer += Time.deltaTime;
+            if (toEnable != null)
+                toEnable.transform.position = GetMouseWorldPosition();
+            yield return null;
+        }
+
+        if (toDisable != null) toDisable.SetActive(true);
+        if (toEnable != null) toEnable.SetActive(false);
     }
 }
