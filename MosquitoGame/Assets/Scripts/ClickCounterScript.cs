@@ -36,6 +36,8 @@ public class ClickCounterScript : MonoBehaviour
     [SerializeField] public GameJuiceEffectScript MosquitoJuice;
     [SerializeField] public GameJuiceEffectScript CounterJuice;
     [SerializeField] public GameJuiceEffectScript CounterNumberJuice;
+    [SerializeField] public GameObject HitEffectObject;
+    [SerializeField] public float BuzzSoundDuration;
 
     [Header("Animation")]
     [SerializeField] public Animator MosquitoGetHitAnim;
@@ -44,10 +46,6 @@ public class ClickCounterScript : MonoBehaviour
     [SerializeField] private float HitEffectAnimDuration = 1f;
     [SerializeField] private float GetHitAnimDuration = 1f;
 
-
-    private float hitEffectTimer = 0f;
-    private bool isHitEffectVisible = false;
-    private string triggerName = "Play";
     private float stressLevel1 = 0f;
     private float stressLevel2 = 0f;
 
@@ -59,9 +57,26 @@ public class ClickCounterScript : MonoBehaviour
     private float inactivityTimer = 0f;
     private string lastButton = "";
 
+    private void Start()
+    {
+        AudioManagerScript.PlayMusic(0, 1, 0.6f, 1f);
+        
+    }
     void Update()
     {
         inactivityTimer += Time.deltaTime;
+        if (BeatingCounter % 10 == 0 && BeatingCounter != 0)
+        {
+            if (BeatingCounter < 20)
+            {
+                AudioManagerScript.PlayMusic(2, 0, 0.1f, 1f);
+            }
+            else
+            {
+                AudioManagerScript.ResumeMusic(2);
+            }
+            
+        }
 
         if (inactivityTimer > ResetDelay)
         {
@@ -77,6 +92,7 @@ public class ClickCounterScript : MonoBehaviour
         if (inactivityTimer >= ResetDelay)
         {
             lastButton = "";
+            AudioManagerScript.PauzeMusic(2);
         }
 
         if (onCooldown)
@@ -90,19 +106,6 @@ public class ClickCounterScript : MonoBehaviour
                 Debug.Log("Cooldown expired");
             }
         }
-
-        //if (isHitEffectVisible)
-        //{
-        //    hitEffectTimer -= Time.deltaTime;
-
-        //    if (hitEffectTimer <= 0f)
-        //    {
-        //        var sprite = HitEffect.GetComponent<SpriteRenderer>();
-        //        if (sprite != null)
-        //            sprite.enabled = false;
-        //        isHitEffectVisible = false;
-        //    }
-        //}
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -136,6 +139,8 @@ public class ClickCounterScript : MonoBehaviour
             StartCoroutine(FlashObject(HandLeft01, HandLeft02));
 
             HandJuice01_2.TriggerJuice();
+            AudioManagerScript.PlaySound(1, 2, Random.Range(0.55f, 0.65f), Random.Range(1.2f, 1.8f));
+            
         }
         else if (button == "Right")
         {
@@ -143,6 +148,8 @@ public class ClickCounterScript : MonoBehaviour
             StartCoroutine(FlashObject(HandRight01, HandRight02));
 
             HandJuice02_2.TriggerJuice();
+            AudioManagerScript.PlaySound(1, 2, Random.Range(0.55f, 0.65f), Random.Range(1.2f, 1.8f));
+            
         }
 
         if (!IsMouseOverMosquito())
@@ -154,6 +161,8 @@ public class ClickCounterScript : MonoBehaviour
         CounterJuice.TriggerJuice();
         CounterNumberJuice.TriggerJuice();
         MosquitoJuice.TriggerJuice();
+        AudioManagerScript.PlaySound(1, 3, Random.Range(0.15f, 0.2f), 1.1f); // satisfying sound
+        StartCoroutine(MusicPauze(BuzzSoundDuration));
 
         inactivityTimer = 0f;
 
@@ -194,7 +203,8 @@ public class ClickCounterScript : MonoBehaviour
 
         if (!onCooldown)
             BeatingCounter++;
-        //PlayEffect();
+        GameObject hitEffect = Instantiate(HitEffectObject, new Vector3(0.1f, 0.7f, -2), Quaternion.Euler(HitEffectObject.transform.rotation.x, HitEffectObject.transform.rotation.y, Random.Range(60f, 290f)));
+        Destroy(hitEffect, HitEffectAnimDuration);
 
         lastButton = button;
     }
@@ -283,24 +293,12 @@ public class ClickCounterScript : MonoBehaviour
         yield return new WaitForSeconds(duration);
         Mosquito.transform.localScale = new Vector3(Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
     }
-    //private void PlayEffect()
-    //{
-    //    if (HitEffect == null)
-    //        return;
-
-    //    var sprite = HitEffect.GetComponent<SpriteRenderer>();
-    //    if (sprite == null)
-    //        return;
-
-    //    sprite.enabled = true;
-    //    float randomZ = Random.Range(60f, 290f);
-    //    sprite.transform.localEulerAngles = new Vector3(sprite.transform.localEulerAngles.x,sprite.transform.localEulerAngles.y,randomZ);
-
-    //    HitEffect.ResetTrigger(triggerName);
-    //    HitEffect.SetTrigger(triggerName);
-
-    //    isHitEffectVisible = true;
-    //    hitEffectTimer = HitEffectAnimDuration;
-    //}
-
+    private System.Collections.IEnumerator MusicPauze(float duration)
+    {
+        AudioManagerScript.StopMusic(0);
+        AudioManagerScript.PlayMusic(0, 1, 0.3f, 0.8f);
+        yield return new WaitForSeconds(duration);
+        AudioManagerScript.StopMusic(0);
+        AudioManagerScript.PlayMusic(0, 1, 0.6f, 1f);
+    }
 }
