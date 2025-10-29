@@ -1,9 +1,5 @@
 using UnityEngine;
 using TMPro;
-using System.Threading;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
-using Unity.VisualScripting;
-using System.Timers;
 
 public class ClickCounterScript : MonoBehaviour
 {
@@ -60,7 +56,6 @@ public class ClickCounterScript : MonoBehaviour
     private void Start()
     {
         AudioManagerScript.PlayMusic(0, 1, 0.6f, 1f);
-        
     }
     void Update()
     {
@@ -161,7 +156,7 @@ public class ClickCounterScript : MonoBehaviour
         CounterJuice.TriggerJuice();
         CounterNumberJuice.TriggerJuice();
         MosquitoJuice.TriggerJuice();
-        AudioManagerScript.PlaySound(1, 3, Random.Range(0.15f, 0.2f), 1.1f); // satisfying sound
+        //AudioManagerScript.PlaySound(1, 3, Random.Range(0.15f, 0.2f), 1.1f); // satisfying sound
         StartCoroutine(MusicPauze(BuzzSoundDuration));
 
         inactivityTimer = 0f;
