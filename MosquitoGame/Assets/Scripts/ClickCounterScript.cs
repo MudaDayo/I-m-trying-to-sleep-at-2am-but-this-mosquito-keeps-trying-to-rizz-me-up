@@ -23,6 +23,11 @@ public class ClickCounterScript : MonoBehaviour
     [SerializeField] private GameObject HandRight02;
     [SerializeField] private float HandDistance = 1;
 
+    [SerializeField] private Color baseColor = Color.white;
+    [SerializeField] private Color stressedColor = Color.red;
+    [SerializeField] private float stressDecaySpeed = 1f;
+    [SerializeField] private float stressIncreasePerClick = 0.2f;
+
     [Header("GameJuice")]
     [SerializeField] public GameJuiceEffectScript HandJuice01_1;
     [SerializeField] public GameJuiceEffectScript HandJuice01_2;
@@ -37,6 +42,9 @@ public class ClickCounterScript : MonoBehaviour
     [SerializeField] public GameObject Mosquito;
     [SerializeField] private float AnimationDuration = 1f;
 
+    private float stressLevel1 = 0f;
+    private float stressLevel2 = 0f;
+
     private float animTimer = 0f;
     private bool isAnimActive = false;
 
@@ -48,6 +56,17 @@ public class ClickCounterScript : MonoBehaviour
     void Update()
     {
         inactivityTimer += Time.deltaTime;
+
+        if (inactivityTimer > ResetDelay)
+        {
+            stressLevel1 = Mathf.MoveTowards(stressLevel1, 0f, stressDecaySpeed * Time.deltaTime);
+            stressLevel2 = Mathf.MoveTowards(stressLevel2, 0f, stressDecaySpeed * Time.deltaTime);
+        }
+
+        HandLeft01.GetComponent<SpriteRenderer>().color = Color.Lerp(baseColor, stressedColor, stressLevel1);
+        HandLeft02.GetComponent<SpriteRenderer>().color = Color.Lerp(baseColor, stressedColor, stressLevel1);
+        HandRight01.GetComponent<SpriteRenderer>().color = Color.Lerp(baseColor, stressedColor, stressLevel2);
+        HandRight02.GetComponent<SpriteRenderer>().color = Color.Lerp(baseColor, stressedColor, stressLevel2);
 
         if (inactivityTimer >= ResetDelay)
         {
@@ -103,13 +122,18 @@ public class ClickCounterScript : MonoBehaviour
         UpdateUI();
     }
 
-
     void HandleClick(string button)
     {
         if (button == "Left")
+        {
+            stressLevel1 = Mathf.Clamp01(stressLevel1 + stressIncreasePerClick);
             StartCoroutine(FlashObject(HandLeft01, HandLeft02));
+        }
         else if (button == "Right")
+        {
+            stressLevel2 = Mathf.Clamp01(stressLevel2 + stressIncreasePerClick);
             StartCoroutine(FlashObject(HandRight01, HandRight02));
+        }
 
         if (!IsMouseOverMosquito())
             return;
@@ -119,6 +143,7 @@ public class ClickCounterScript : MonoBehaviour
         HandJuice02_1.TriggerJuice();
 
         inactivityTimer = 0f;
+        
 
         if (onCooldown)
         {
@@ -137,6 +162,7 @@ public class ClickCounterScript : MonoBehaviour
 
             return;
         }
+
 
         if (button == lastButton && lastButton != "")
         {
@@ -200,7 +226,7 @@ public class ClickCounterScript : MonoBehaviour
     public void TriggerGetHitLeft()
     {
         animTimer = AnimationDuration;
-        Mosquito.transform.localScale = new Vector3(-Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
+        StartCoroutine(SetRotationMosquito(0.5f));
 
         if (!isAnimActive)
         {
@@ -229,5 +255,11 @@ public class ClickCounterScript : MonoBehaviour
         if (hideRenderer != null) hideRenderer.enabled = true;
         if (showRenderer != null) showRenderer.enabled = false;
     }
-    
+    private System.Collections.IEnumerator SetRotationMosquito(float duration)
+    {
+        Mosquito.transform.localScale = new Vector3(-Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
+        yield return new WaitForSeconds(duration);
+        Mosquito.transform.localScale = new Vector3(Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
+    }
+
 }
