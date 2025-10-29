@@ -53,24 +53,59 @@ public class ClickCounterScript : MonoBehaviour
     private float inactivityTimer = 0f;
     private string lastButton = "";
 
+    private int idleID;
+
+
+    private float comboTimer = 0f;
+    private float comboResetTime = 1f;
+    public int comboCount = 0;
+    private int previousBeatingCounter = 0;  
+
     private void Start()
     {
-        AudioManagerScript.PlayMusic(0, 1, 0.6f, 1f);
+        AudioManagerScript.PlayMusic(0, 1, 1f, 1f);
+
+        StartCoroutine(MusicPauze(BuzzSoundDuration));
+
+        idleID = 0;
     }
     void Update()
     {
+        //if the time between clicks is less than comboResetTime, increase comboCount
+        comboTimer += Time.deltaTime;
+        if (BeatingCounter != previousBeatingCounter && comboTimer <= comboResetTime)
+        {
+            comboCount++;
+            comboTimer = 0f;
+        }
+        //if the time between clicks is more than comboResetTime, reset comboCount
+        else if (comboTimer >= comboResetTime)
+        {
+            comboTimer = 0f;
+            comboCount = 0;
+        }
+
+        previousBeatingCounter = BeatingCounter;
+
         inactivityTimer += Time.deltaTime;
-        if (BeatingCounter % 10 == 0 && BeatingCounter != 0)
+
+        // If comboCount reaches threshold, play or resume music
+        if (comboCount >= 10)
         {
             if (BeatingCounter < 20)
             {
-                AudioManagerScript.PlayMusic(2, 0, 0.1f, 1f);
+                AudioManagerScript.PlayMusic(2, 0, 0.5f, 1f);
             }
             else
             {
                 AudioManagerScript.ResumeMusic(2);
             }
-            
+
+        }
+        
+        if(BeatingCounter % 100 == 0 && BeatingCounter != 0)
+        {
+            AudioManagerScript.PlaySound(3, 3, 0.5f, 1f);
         }
 
         if (inactivityTimer > ResetDelay)
@@ -118,6 +153,7 @@ public class ClickCounterScript : MonoBehaviour
             if (animTimer <= 0f)
             {
                 MosquitoGetHitAnim.SetBool("GetHit", false);
+                MosquitoGetHitAnim.SetInteger("IdleState", idleID);
                 isAnimActive = false;
             }
         }
@@ -134,7 +170,7 @@ public class ClickCounterScript : MonoBehaviour
             StartCoroutine(FlashObject(HandLeft01, HandLeft02));
 
             HandJuice01_2.TriggerJuice();
-            AudioManagerScript.PlaySound(1, 2, Random.Range(0.55f, 0.65f), Random.Range(1.2f, 1.8f));
+            AudioManagerScript.PlaySound(1, 2, 1, Random.Range(1.2f, 1.8f));
             
         }
         else if (button == "Right")
@@ -143,7 +179,7 @@ public class ClickCounterScript : MonoBehaviour
             StartCoroutine(FlashObject(HandRight01, HandRight02));
 
             HandJuice02_2.TriggerJuice();
-            AudioManagerScript.PlaySound(1, 2, Random.Range(0.55f, 0.65f), Random.Range(1.2f, 1.8f));
+            AudioManagerScript.PlaySound(1, 2, 1, Random.Range(1.2f, 1.8f));
             
         }
 
@@ -189,14 +225,14 @@ public class ClickCounterScript : MonoBehaviour
         }
 
 
-        if (button == lastButton && lastButton != "")
-        {
-            onCooldown = true;
-            cooldownTimer = CooldownTime;
-            Debug.Log("Cooldown triggered for " + CooldownTime + "s!");
-        }
+        // if (button == lastButton && lastButton != "")
+        // {
+        //     onCooldown = true;
+        //     cooldownTimer = CooldownTime;
+        //     Debug.Log("Cooldown triggered for " + CooldownTime + "s!");
+        // }
 
-        if (!onCooldown)
+        // if (!onCooldown)
             BeatingCounter++;
         GameObject hitEffect = Instantiate(HitEffectObject, new Vector3(0.1f, 0.7f, -2), Quaternion.Euler(HitEffectObject.transform.rotation.x, HitEffectObject.transform.rotation.y, Random.Range(60f, 290f)));
         Destroy(hitEffect, HitEffectAnimDuration);
@@ -246,6 +282,7 @@ public class ClickCounterScript : MonoBehaviour
         {
             isAnimActive = true;
             MosquitoGetHitAnim.SetBool("GetHit", true);
+            idleID = Random.Range(1, 3);
         }
 
     }
@@ -259,6 +296,7 @@ public class ClickCounterScript : MonoBehaviour
         {
             isAnimActive = true;
             MosquitoGetHitAnim.SetBool("GetHit", true);
+            idleID = Random.Range(1, 4);
         }
     }
 
@@ -291,9 +329,9 @@ public class ClickCounterScript : MonoBehaviour
     private System.Collections.IEnumerator MusicPauze(float duration)
     {
         AudioManagerScript.StopMusic(0);
-        AudioManagerScript.PlayMusic(0, 1, 0.3f, 0.8f);
-        yield return new WaitForSeconds(duration);
+        AudioManagerScript.PlayMusic(0, 1, 1f, 1f);
+        yield return new WaitForSeconds(0);
         AudioManagerScript.StopMusic(0);
-        AudioManagerScript.PlayMusic(0, 1, 0.6f, 1f);
+        AudioManagerScript.PlayMusic(0, 1, 1f, 1f);
     }
 }
