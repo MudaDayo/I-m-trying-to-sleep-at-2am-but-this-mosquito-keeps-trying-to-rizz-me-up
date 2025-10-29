@@ -196,7 +196,10 @@ public class ClickCounterScript : MonoBehaviour
         HandJuice01_1.TriggerJuice();
         HandJuice02_1.TriggerJuice();
         CounterJuice.TriggerJuice();
-        comboCounterJuice.TriggerJuice();
+        if(comboCounterJuice.isActiveAndEnabled)
+        {
+                    comboCounterJuice.TriggerJuice();
+        }
         CounterNumberJuice.TriggerJuice();
         MosquitoJuice.TriggerJuice();
         //AudioManagerScript.PlaySound(1, 3, Random.Range(0.15f, 0.2f), 1.1f); // satisfying sound
