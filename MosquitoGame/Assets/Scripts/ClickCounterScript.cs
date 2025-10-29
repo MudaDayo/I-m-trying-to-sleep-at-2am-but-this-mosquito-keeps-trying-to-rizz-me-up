@@ -39,9 +39,15 @@ public class ClickCounterScript : MonoBehaviour
 
     [Header("Animation")]
     [SerializeField] public Animator MosquitoGetHitAnim;
+    [SerializeField] public Animator HitEffect;
     [SerializeField] public GameObject Mosquito;
-    [SerializeField] private float AnimationDuration = 1f;
+    [SerializeField] private float HitEffectAnimDuration = 1f;
+    [SerializeField] private float GetHitAnimDuration = 1f;
 
+
+    private float hitEffectTimer = 0f;
+    private bool isHitEffectVisible = false;
+    private string triggerName = "Play";
     private float stressLevel1 = 0f;
     private float stressLevel2 = 0f;
 
@@ -84,27 +90,28 @@ public class ClickCounterScript : MonoBehaviour
                 Debug.Log("Cooldown expired");
             }
         }
-        
+
+        //if (isHitEffectVisible)
+        //{
+        //    hitEffectTimer -= Time.deltaTime;
+
+        //    if (hitEffectTimer <= 0f)
+        //    {
+        //        var sprite = HitEffect.GetComponent<SpriteRenderer>();
+        //        if (sprite != null)
+        //            sprite.enabled = false;
+        //        isHitEffectVisible = false;
+        //    }
+        //}
+
         if (Input.GetMouseButtonDown(0))
         {
             HandleClick("Left");
-            HandJuice01_2.TriggerJuice();
-            MosquitoJuice.TriggerJuice();
-            CounterJuice.TriggerJuice();
-            CounterNumberJuice.TriggerJuice();
-
-            TriggerGetHitLeft ();
         }
+
         if (Input.GetMouseButtonDown(1))
         {
             HandleClick("Right");
-            HandJuice02_2.TriggerJuice();
-            MosquitoJuice.TriggerJuice();
-            CounterJuice.TriggerJuice();
-            CounterNumberJuice.TriggerJuice();
-
-            TriggerGetHitRight();
-            
         }
 
         if (isAnimActive)
@@ -117,7 +124,6 @@ public class ClickCounterScript : MonoBehaviour
             }
         }
 
-
         UpdateFollowObjects();
         UpdateUI();
     }
@@ -128,11 +134,15 @@ public class ClickCounterScript : MonoBehaviour
         {
             stressLevel1 = Mathf.Clamp01(stressLevel1 + stressIncreasePerClick);
             StartCoroutine(FlashObject(HandLeft01, HandLeft02));
+
+            HandJuice01_2.TriggerJuice();
         }
         else if (button == "Right")
         {
             stressLevel2 = Mathf.Clamp01(stressLevel2 + stressIncreasePerClick);
             StartCoroutine(FlashObject(HandRight01, HandRight02));
+
+            HandJuice02_2.TriggerJuice();
         }
 
         if (!IsMouseOverMosquito())
@@ -141,9 +151,20 @@ public class ClickCounterScript : MonoBehaviour
         //Juice
         HandJuice01_1.TriggerJuice();
         HandJuice02_1.TriggerJuice();
+        CounterJuice.TriggerJuice();
+        CounterNumberJuice.TriggerJuice();
+        MosquitoJuice.TriggerJuice();
 
         inactivityTimer = 0f;
-        
+
+        if (button == "Left")
+        {
+            TriggerGetHitLeft();
+        }
+        else if (button == "Right")
+        {
+            TriggerGetHitRight();
+        }
 
         if (onCooldown)
         {
@@ -173,6 +194,7 @@ public class ClickCounterScript : MonoBehaviour
 
         if (!onCooldown)
             BeatingCounter++;
+        //PlayEffect();
 
         lastButton = button;
     }
@@ -211,7 +233,7 @@ public class ClickCounterScript : MonoBehaviour
 
     public void TriggerGetHitRight()
     {
-        animTimer = AnimationDuration;
+        animTimer = GetHitAnimDuration;
 
         Mosquito.transform.localScale = new Vector3(Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
 
@@ -225,7 +247,7 @@ public class ClickCounterScript : MonoBehaviour
 
     public void TriggerGetHitLeft()
     {
-        animTimer = AnimationDuration;
+        animTimer = GetHitAnimDuration;
         StartCoroutine(SetRotationMosquito(0.5f));
 
         if (!isAnimActive)
@@ -261,5 +283,24 @@ public class ClickCounterScript : MonoBehaviour
         yield return new WaitForSeconds(duration);
         Mosquito.transform.localScale = new Vector3(Mathf.Abs(Mosquito.transform.localScale.x), Mosquito.transform.localScale.y, Mosquito.transform.localScale.z);
     }
+    //private void PlayEffect()
+    //{
+    //    if (HitEffect == null)
+    //        return;
+
+    //    var sprite = HitEffect.GetComponent<SpriteRenderer>();
+    //    if (sprite == null)
+    //        return;
+
+    //    sprite.enabled = true;
+    //    float randomZ = Random.Range(60f, 290f);
+    //    sprite.transform.localEulerAngles = new Vector3(sprite.transform.localEulerAngles.x,sprite.transform.localEulerAngles.y,randomZ);
+
+    //    HitEffect.ResetTrigger(triggerName);
+    //    HitEffect.SetTrigger(triggerName);
+
+    //    isHitEffectVisible = true;
+    //    hitEffectTimer = HitEffectAnimDuration;
+    //}
 
 }
