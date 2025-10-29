@@ -30,7 +30,7 @@ public class ClickCounterScript : MonoBehaviour
     [SerializeField] public GameJuiceEffectScript HandJuice02_1;
     [SerializeField] public GameJuiceEffectScript HandJuice02_2;
     [SerializeField] public GameJuiceEffectScript MosquitoJuice;
-    [SerializeField] public GameJuiceEffectScript CounterJuice;
+    [SerializeField] public GameJuiceEffectScript CounterJuice, comboCounterJuice;
     [SerializeField] public GameJuiceEffectScript CounterNumberJuice;
     [SerializeField] public GameObject HitEffectObject;
     [SerializeField] public float BuzzSoundDuration;
@@ -61,6 +61,8 @@ public class ClickCounterScript : MonoBehaviour
     public int comboCount = 0;
     private int previousBeatingCounter = 0;  
 
+    public TextMeshProUGUI ComboText, comboNumberText;
+
     private void Start()
     {
         AudioManagerScript.PlayMusic(0, 1, 1f, 1f);
@@ -83,15 +85,19 @@ public class ClickCounterScript : MonoBehaviour
         {
             comboTimer = 0f;
             comboCount = 0;
+            ComboText.gameObject.SetActive(false);
         }
 
         previousBeatingCounter = BeatingCounter;
 
         inactivityTimer += Time.deltaTime;
 
-        // If comboCount reaches threshold, play or resume music
+        // If comboCount reaches threshold, play or resume music and display current combo
         if (comboCount >= 10)
         {
+            ComboText.gameObject.SetActive(true);
+            comboNumberText.text = comboCount.ToString();
+
             if (BeatingCounter < 20)
             {
                 AudioManagerScript.PlayMusic(2, 0, 0.5f, 1f);
@@ -190,6 +196,7 @@ public class ClickCounterScript : MonoBehaviour
         HandJuice01_1.TriggerJuice();
         HandJuice02_1.TriggerJuice();
         CounterJuice.TriggerJuice();
+        comboCounterJuice.TriggerJuice();
         CounterNumberJuice.TriggerJuice();
         MosquitoJuice.TriggerJuice();
         //AudioManagerScript.PlaySound(1, 3, Random.Range(0.15f, 0.2f), 1.1f); // satisfying sound
